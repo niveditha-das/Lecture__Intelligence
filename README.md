@@ -239,3 +239,18 @@ runner — assigned different numbers to the same passages and every label
 silently pointed at the wrong chunk. Gold labels are now exported as
 `(source_title, ordinal)` and resolved to ids on import. A benchmark that only
 works on the machine that created it is not a benchmark.
+
+### Study planner: a known limitation
+
+Urgency ranks a topic answered once (theta +0.30) above eleven topics never
+assessed at all, because untested topics get a fixed retention floor of 0.25
+while a tested topic's retention decays over the days to the exam. Recent
+evidence of weakness outranking absence of evidence is defensible; a *correct*
+answer outranking an untested topic is not.
+
+All untested topics also tie at exactly 1.125, so their relative order is
+arbitrary. A real course would break that tie on week proximity or chunk count.
+
+Both are visible because the ranking is returned with the plan rather than
+hidden inside a prompt — which is the argument for a deterministic planner over
+asking a model to produce a timetable.
