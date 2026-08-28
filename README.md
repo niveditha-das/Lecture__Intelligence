@@ -223,3 +223,19 @@ and the ablation is in the repo so the decision can be revisited with data.
 Every run is persisted to `eval_runs` with its git SHA and full retrieval
 config, and every per-example result to `eval_results`. `GET /eval/runs` returns
 the history, so a regression is diffable rather than remembered.
+
+### Two bugs worth recording
+
+**Concurrent model loads.** Lazy initialisation with no lock: eight concurrent
+eval requests each saw `_model is None` and started building their own copy of a
+568M embedding model. Memory ran out mid-load and torch left the weights on the
+meta device, surfacing as `Cannot copy out of meta tensor` — an error that says
+nothing about the actual cause. Fixed with double-checked locking plus loading
+both models at startup, so no request ever races to build one.
+
+**Gold labels were not portable.** `eval_examples.gold_chunk_ids` held bigserial
+ids assigned at ingest time, so a fresh database — a colleague's laptop, a CI
+runner — assigned different numbers to the same passages and every label
+silently pointed at the wrong chunk. Gold labels are now exported as
+`(source_title, ordinal)` and resolved to ids on import. A benchmark that only
+works on the machine that created it is not a benchmark.
