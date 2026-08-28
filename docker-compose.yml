@@ -20,6 +20,7 @@ services:
     environment:
       DATABASE_URL: postgresql://lia:lia@db:5432/lia
       STORAGE_DIR: /data/storage
+      GIT_SHA: ${GIT_SHA:-}
     ports: ["8000:8000"]
     volumes:
       - ./backend:/app

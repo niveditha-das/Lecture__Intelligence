@@ -8,8 +8,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import acquire, close_pool, init_pool
-from .retrieval import rerank
-from .routers import ask, sources
+from .retrieval import embeddings, rerank
+from .routers import ask, evaluation, sources
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,7 +17,10 @@ logging.basicConfig(level=logging.INFO)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_pool()
-    warmup = asyncio.create_task(rerank.warm())
+    warmup = asyncio.gather(
+        asyncio.create_task(embeddings.warm()),
+        asyncio.create_task(rerank.warm()),
+    )
     yield
     warmup.cancel()
     await close_pool()
@@ -33,6 +36,7 @@ app.add_middleware(
 
 app.include_router(sources.router)
 app.include_router(ask.router)
+app.include_router(evaluation.router)
 
 
 @app.get("/health")

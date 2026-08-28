@@ -207,3 +207,19 @@ almost always contains the gold chunk, so recall cannot discriminate between
 configurations — only MRR moves. These numbers demonstrate that the harness
 works end to end; they are not yet a strong benchmark of retrieval quality.
 Re-running on a full semester of material is the next step.
+
+### Ablation (43 chunks, 12 examples, k=5, retrieval only)
+
+| config | recall@5 | MRR | p50 latency |
+|---|---|---|---|
+| hybrid (vector + keyword, RRF) | 1.00 | 0.917 | 820ms |
+| + cross-encoder rerank | 1.00 | 1.00 | 5932ms |
+
+Reranking promoted one gold chunk from rank 2 to rank 1 — 0.083 MRR for roughly
+7x the latency under concurrent load (single-query latency is ~3.5s). Whether
+that trade is worth it depends on corpus size; at 43 chunks it clearly is not,
+and the ablation is in the repo so the decision can be revisited with data.
+
+Every run is persisted to `eval_runs` with its git SHA and full retrieval
+config, and every per-example result to `eval_results`. `GET /eval/runs` returns
+the history, so a regression is diffable rather than remembered.

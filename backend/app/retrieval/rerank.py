@@ -10,12 +10,16 @@ delta in your README. That comparison is the whole point of having a harness.
 from __future__ import annotations
 
 import asyncio
+import threading
 import logging
 
 from ..config import settings
 
 log = logging.getLogger(__name__)
 _models: dict[str, object] = {}
+
+
+_load_lock = threading.Lock()
 
 
 def _load(name: str | None = None):
