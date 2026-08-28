@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans;
+  }
+
+  /* Numbers are the point of this project, so they get their own voice:
+     tabular mono everywhere a score, rank or rate appears. */
+  .num {
+    @apply font-mono tabular-nums;
+  }
+
+  /* Small caps eyebrow used for section labels. */
+  .eyebrow {
+    @apply font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme("colors.accent");
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

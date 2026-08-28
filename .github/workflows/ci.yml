@@ -1,0 +1,43 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: lia
+          POSTGRES_PASSWORD: lia
+          POSTGRES_DB: lia
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lia" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r backend/requirements.txt
+      - name: apply schema
+        run: psql "$DATABASE_URL" -f backend/migrations/001_init.sql
+        env:
+          PGPASSWORD: lia
+          DATABASE_URL: postgresql://lia:lia@localhost:5432/lia
+      - name: unit tests
+        run: cd backend && python -m pytest tests -q
+
+  # Quality regression gate. Runs retrieval-only (no API keys, no cost) against a
+  # committed fixture corpus. If a chunking or retrieval change drops recall,
+  # the build fails — the point of having an eval harness at all.
+  eval-gate:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "wire this to a seeded fixture DB, then:"
+      - run: echo "python -m app.evaluation.runner --retrieval-only --fail-under recall_at_k=0.80"
