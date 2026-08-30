@@ -65,6 +65,13 @@ def main() -> int:
 
     try:
         res = post(f"{args.api}/eval/run", payload, args.timeout)
+    except urllib.error.HTTPError as exc:
+        # The API answered, it just failed. Show its body rather than claiming
+        # the server is unreachable — HTTPError subclasses URLError, so an
+        # unguarded URLError handler swallows real server errors.
+        print(f"the API returned {exc.code}:", file=sys.stderr)
+        print(exc.read().decode()[:2000], file=sys.stderr)
+        return 2
     except urllib.error.URLError as exc:
         print(f"cannot reach the API at {args.api}: {exc}", file=sys.stderr)
         print("start it with `make up` and wait for /health", file=sys.stderr)

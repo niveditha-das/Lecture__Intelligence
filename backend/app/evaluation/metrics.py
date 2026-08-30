@@ -27,6 +27,26 @@ def mrr(retrieved: list[int], gold: list[int]) -> float:
     return 0.0
 
 
+def citation_precision_supported(cited: list[int], gold: list[int],
+                                 supported: set[int]) -> float:
+    """Citation precision, counting independently-verified sources as correct.
+
+    Strict precision against a single-chunk gold label penalises correct
+    behaviour: a concept often spans consecutive slides, and an answer citing
+    both is better, not worse. Measured case — "why is a context switch pure
+    overhead?" cited chunks 213 (gold) and 212, where 212 states "a context
+    switch occurs when the CPU switches from one process to another". Scoring
+    that 0.5 measures label granularity, not citation quality.
+
+    A citation counts as correct if it is a gold chunk, or if the entailment
+    checker independently confirmed it supports a sentence in the answer.
+    """
+    if not cited:
+        return float("nan")
+    ok = set(gold) | supported
+    return len([c for c in cited if c in ok]) / len(cited)
+
+
 def citation_precision(cited: list[int], gold: list[int]) -> float:
     """Of the chunks the model actually cited, how many were correct sources?
 

@@ -91,7 +91,15 @@ async def _run_example(ex: dict, k: int, rerank: bool, generate: bool,
         row["refused"] = bool(res["refused"])
         if not unanswerable:
             cited = [c["chunk_id"] for c in res["citations"]]
-            row["citation_precision"] = _clean(M.citation_precision(cited, gold))
+            by_n = {c["n"]: c["chunk_id"] for c in res["citations"]}
+            supported: set[int] = set()
+            for sent in (res.get("verification") or {}).get("sentences", []):
+                if sent.get("verdict") == "SUPPORTED":
+                    supported.update(by_n[n] for n in sent.get("citations", []) if n in by_n)
+            row["citation_precision"] = _clean(
+                M.citation_precision_supported(cited, gold, supported)
+            )
+            row["citation_precision_strict"] = _clean(M.citation_precision(cited, gold))
             if res.get("verification"):
                 row["supported_ratio"] = _clean(res["verification"].get("supported_ratio"))
 

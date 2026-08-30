@@ -291,3 +291,29 @@ covered in the lectures, scoring +7.33, +5.85 and +1.76 on the reranker. Loading
 them unchecked would have reported refusal accuracy of 5/8 and suggested the
 system hallucinates, when in fact it correctly answered three questions that
 were mislabelled. A wrong benchmark is worse than no benchmark.
+
+### Generation metrics, CSC1021 (6 questions)
+
+| metric | value |
+|---|---|
+| citation precision (strict, vs gold labels) | 0.722 |
+| citation precision (counting verified sources) | 1.000 |
+| unsupported-claim rate | 0.056 |
+| recall@5 / MRR | 1.00 / 1.00 |
+
+Two citation-precision numbers, because the first was measuring the wrong thing.
+
+Strict precision scores a citation correct only if it appears in the gold label,
+which lists one chunk per question. But a concept usually spans consecutive
+slides. Measured case: "why is a context switch pure overhead?" cited chunk 213
+(gold) and 212, where 212 reads "a context switch occurs when the CPU switches
+from one process to another" — a correct, relevant source. Scoring that 0.5
+penalises better citation behaviour.
+
+The relaxed metric counts a citation as correct if it is a gold chunk *or* if
+the per-sentence entailment checker independently confirmed it supports the
+sentence citing it. That is a genuine second signal, not a loosened threshold —
+the judge never sees the gold labels.
+
+Both are reported. The strict figure is a lower bound distorted by
+single-chunk labelling; the relaxed figure says no citation was fabricated.
