@@ -317,3 +317,21 @@ the judge never sees the gold labels.
 
 Both are reported. The strict figure is a lower bound distorted by
 single-chunk labelling; the relaxed figure says no citation was fabricated.
+
+### Rate limiting belongs in one place
+
+The eval initially failed on repeat runs with 429s. Rate limiting had grown up
+in four places with four strategies — a semaphore in the verifier, a 5s pacer in
+topic extraction, a semaphore in quiz generation, and nothing at all in the
+answer path, which is why generation was the thing that died.
+
+It now lives in `llm.py`, the single point every model call passes through:
+one shared pacer (~13 req/min) plus retry-on-429 with escalating backoff. The
+provider SDK's own retries fire within milliseconds and spend quota without
+succeeding, so pacing at the source is the only thing that works.
+
+Cost: eval p50 latency went 4.3s → 30.9s, since a run makes ~16 sequential
+model calls. Interactive `/ask` is unaffected at ~4s — it makes one. The
+unsupported-claim rate also improved (0.056 → 0.033) because judge calls that
+previously died on 429s now complete: an infrastructure failure had been
+degrading a quality metric.

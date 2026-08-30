@@ -125,7 +125,8 @@ async def run_eval(body: EvalRequest):
 
     # Generation hits an LLM, and free tiers rate-limit hard, so serialise it.
     # Retrieval-only runs are local and can go wide.
-    sem = asyncio.Semaphore(1 if body.generate else 8)
+    # llm.py paces all model calls centrally; this only bounds local work.
+    sem = asyncio.Semaphore(2 if body.generate else 8)
 
     async def guarded(ex: dict) -> dict[str, Any]:
         async with sem:

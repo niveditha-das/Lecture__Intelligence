@@ -2,10 +2,52 @@
 swappable part of this system."""
 from __future__ import annotations
 
+import asyncio
 import json
+import os
 import re
+import time
 
 from ..config import settings
+
+
+# --- rate limiting ------------------------------------------------------
+# Rate limiting belongs here, not in each caller. It was previously handled in
+# three places with three strategies (a semaphore in verify.py, a 5s pacer in
+# topics.py, a semaphore in quiz.py) and not at all in generate.py — which is
+# why the eval died on 429s while topic extraction survived. One throttle at the
+# single point every call passes through fixes all of them at once.
+#
+# The provider SDK retries 429s within milliseconds, which spends quota without
+# ever succeeding. Pacing at the source is the only thing that works.
+_MIN_INTERVAL = float(os.environ.get("LLM_MIN_INTERVAL", "4.5"))  # ~13 req/min
+_last_call = 0.0
+_pace = asyncio.Lock()
+
+
+async def _throttle() -> None:
+    global _last_call
+    async with _pace:
+        wait = _MIN_INTERVAL - (time.monotonic() - _last_call)
+        if wait > 0:
+            await asyncio.sleep(wait)
+        _last_call = time.monotonic()
+
+
+async def _with_retries(fn, attempts: int = 4):
+    """Pace every call; on 429, wait what the provider asked for and retry."""
+    last: Exception | None = None
+    for i in range(attempts):
+        await _throttle()
+        try:
+            return await fn()
+        except Exception as exc:
+            last = exc
+            if "RateLimit" not in type(exc).__name__ and "429" not in str(exc):
+                raise
+            await asyncio.sleep(min(60, 15 * (i + 1)))
+    raise last if last else RuntimeError("no attempts made")
+
 
 FENCE = re.compile(r"^```(?:json)?|```$", re.MULTILINE)
 
@@ -25,19 +67,19 @@ async def complete(
         from anthropic import AsyncAnthropic
 
         client = AsyncAnthropic(api_key=s.anthropic_api_key)
-        resp = await client.messages.create(
+        resp = await _with_retries(lambda: client.messages.create(
             model=model,
             system=system,
             max_tokens=max_tokens,
             temperature=temperature,
             messages=[{"role": "user", "content": user}],
-        )
+        ))
         return "".join(b.text for b in resp.content if b.type == "text")
 
     from openai import AsyncOpenAI
 
     client = AsyncOpenAI(api_key=s.openai_api_key, base_url=s.openai_base_url)
-    resp = await client.chat.completions.create(
+    resp = await _with_retries(lambda: client.chat.completions.create(
         model=model,
         max_tokens=max_tokens,
         temperature=temperature,
@@ -45,7 +87,7 @@ async def complete(
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
-    )
+    ))
     return resp.choices[0].message.content or ""
 
 
