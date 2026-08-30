@@ -254,3 +254,40 @@ arbitrary. A real course would break that tie on week proximity or chunk count.
 Both are visible because the ranking is returned with the plan rather than
 hidden inside a prompt — which is the argument for a deterministic planner over
 asking a model to produce a timetable.
+
+### Eval on a real corpus: CSC1021 (399 chunks, 5 lectures)
+
+| config | recall@5 | MRR | p50 latency |
+|---|---|---|---|
+| hybrid (vector + keyword, RRF) | 0.938 | 0.875 | 606ms |
+| + cross-encoder rerank | 0.938 | 0.875 | 4626ms |
+
+16 hand-verified factual questions, 5 unanswerable controls. Unlike the 43-chunk
+sample corpus, recall here is not saturated — the metric discriminates.
+
+**Reranking contributed nothing on this corpus**, against +0.083 MRR on the
+smaller one, for 8x the latency. Reranking only helps when fusion ordering is
+wrong; here RRF already ranked gold first in most cases. Worth measuring per
+corpus rather than assuming.
+
+**The one failure is a chunking problem, not a retrieval one.** The question
+"how does Round Robin turnaround compare to SJF?" has its answer in chunk 70,
+which states it in one clear sentence — but that chunk is dominated by a Gantt
+chart whose text extracted as `P1 P1 P1 P P P 1 1 1 0 18 30 26 14 4 7 10 22`.
+The relevant sentence is ~12% of the chunk; the rest is diagram debris pulling
+the embedding away from any prose query. Retrieval behaved correctly given a
+poisoned chunk.
+
+Filtering blocks by alphabetic-character ratio would fix this case, but would
+also discard legitimate notation-heavy slides (`S = {H, T}`, formula
+derivations). Left unfixed and documented rather than papered over with a
+heuristic that trades one failure mode for another.
+
+### Controls must be verified, not assumed
+
+Eight unanswerable controls were hand-written for this corpus. Three —
+banker's algorithm, TLB address translation, copy-on-write — turned out to be
+covered in the lectures, scoring +7.33, +5.85 and +1.76 on the reranker. Loading
+them unchecked would have reported refusal accuracy of 5/8 and suggested the
+system hallucinates, when in fact it correctly answered three questions that
+were mislabelled. A wrong benchmark is worse than no benchmark.
