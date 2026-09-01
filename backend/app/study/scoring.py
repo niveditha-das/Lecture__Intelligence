@@ -20,7 +20,8 @@ from __future__ import annotations
 import math
 
 K_MIN, K_MAX = 0.15, 0.6
-BASE_HALF_LIFE_DAYS = 1.0
+BASE_HALF_LIFE_DAYS = 3.0   # a topic reviewed today should not read as forgotten
+MIN_DAYS_FOR_DECAY = 0.5    # below this, treat the material as still fresh
 
 
 def sigmoid(x: float) -> float:
@@ -44,7 +45,9 @@ def half_life_days(theta: float, n_correct: int) -> float:
 
 def retention(theta: float, n_correct: int, days_since: float) -> float:
     """Exponential forgetting: halves every `half_life_days`."""
-    if days_since <= 0:
+    # Decay is calibrated in days. Something answered minutes ago is not
+    # "5% retained" — reporting that made the mastery panel say something false.
+    if days_since <= MIN_DAYS_FOR_DECAY:
         return 1.0
     return 2.0 ** (-days_since / half_life_days(theta, n_correct))
 

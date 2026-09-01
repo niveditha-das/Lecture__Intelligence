@@ -24,6 +24,9 @@ QUIZ_SYSTEM = """You write exam-style multiple-choice questions from lecture mat
 
 Rules:
 - Every question must be answerable from the supplied passages alone.
+- Never refer to the source in the question: no "according to the passage",
+  "as the slides state", "in the given text". A student sees the question, not
+  the passage. Ask about the concept directly.
 - Distractors must be plausible to a student who half-understands the topic:
   common misconceptions, off-by-one errors, swapped formulas, confusing a
   definition with a closely related one. Never obviously silly options.

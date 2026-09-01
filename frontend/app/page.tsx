@@ -111,6 +111,10 @@ export default function Page() {
               sentence traceable to the page it came from.
             </p>
           </div>
+          <nav className="flex gap-4 text-sm">
+            <span className="text-paper">Ask</span>
+            <a href="/study" className="text-paper/70 underline hover:text-paper">Study</a>
+          </nav>
           {health && (
             <dl className="num flex gap-6 text-xs text-paper/60">
               <div>
