@@ -7,40 +7,26 @@ import {
   Citation,
   Course,
   getCourses,
-  getHealth,
   getSources,
   Source,
 } from "./lib/api";
-import { CitationViewer } from "./components/CitationViewer";
-import {
-  AnswerBody,
-  RetrievalPanel,
-  VerificationPanel,
-} from "./components/AnswerView";
+import { SourceView } from "./components/SourceView";
+import { CoursePicker, Details, Header, PageIntro } from "./components/Shell";
 
 const MODES = [
-  { id: "simple", label: "Explain simply" },
+  { id: "simple", label: "Simple" },
   { id: "technical", label: "Technical" },
   { id: "example", label: "Worked example" },
   { id: "socratic", label: "Socratic" },
 ];
 
-const SAMPLES = [
-  "What is a sample space?",
-  "How do you calculate the probability of two overlapping events?",
-  "What is the formula for the expected value of a binomial trial?",
-];
-
-export default function Page() {
+export default function AskPage() {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [courseId, setCourseId] = useState<string>("");
+  const [courseId, setCourseId] = useState("");
   const [sources, setSources] = useState<Source[]>([]);
-  const [health, setHealth] = useState<{ chunks: number } | null>(null);
-
   const [question, setQuestion] = useState("");
   const [mode, setMode] = useState("simple");
-  const [week, setWeek] = useState<string>("");
-
+  const [week, setWeek] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AskResponse | null>(null);
@@ -53,15 +39,12 @@ export default function Page() {
         if (cs.length) setCourseId(cs[0].id);
       })
       .catch((e) => setError(String(e)));
-    getHealth().then(setHealth).catch(() => {});
   }, []);
 
   useEffect(() => {
     if (!courseId) return;
     let cancelled = false;
-    getSources(courseId)
-      .then((s) => !cancelled && setSources(s))
-      .catch(() => {});
+    getSources(courseId).then((s) => !cancelled && setSources(s)).catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -73,10 +56,9 @@ export default function Page() {
     return [...ws].sort((a, b) => a - b);
   }, [sources]);
 
-  async function submit(q?: string) {
-    const text = (q ?? question).trim();
+  async function submit() {
+    const text = question.trim();
     if (!text || loading) return;
-    setQuestion(text);
     setLoading(true);
     setError(null);
     setResult(null);
@@ -98,183 +80,219 @@ export default function Page() {
   }
 
   return (
-    <main className="min-h-screen">
-      {/* ---------------------------------------------------------------- */}
-      <header className="border-b border-rule bg-ink text-paper">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-4 px-6 py-7">
-          <div>
-            <h1 className="font-display text-4xl leading-none tracking-tight">
-              Lecture Intelligence
-            </h1>
-            <p className="mt-2 max-w-measure text-sm text-paper/70">
-              Answers drawn only from your own course material, with every
-              sentence traceable to the page it came from.
-            </p>
-          </div>
-          <nav className="flex gap-4 text-sm">
-            <span className="text-paper">Ask</span>
-            <a href="/study" className="text-paper/70 underline hover:text-paper">Study</a>
-          </nav>
-          {health && (
-            <dl className="num flex gap-6 text-xs text-paper/60">
-              <div>
-                <dt className="eyebrow text-paper/50">Chunks</dt>
-                <dd className="mt-1 text-lg text-paper">{health.chunks}</dd>
-              </div>
-              <div>
-                <dt className="eyebrow text-paper/50">Sources</dt>
-                <dd className="mt-1 text-lg text-paper">{sources.length}</dd>
-              </div>
-            </dl>
-          )}
-        </div>
-      </header>
+    <>
+      <Header active="ask" />
+      <PageIntro
+        title="Ask your lectures"
+        sub="Answers come only from material you've uploaded."
+      />
 
-      <div className="mx-auto max-w-6xl px-6 py-8">
-        {/* -------------------------------------------------------------- */}
-        <section className="border border-rule bg-card">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-rule px-4 py-3">
-            {courses.length > 1 && (
-              <label className="flex items-center gap-2">
-                <span className="eyebrow">Course</span>
-                <select
-                  value={courseId}
-                  onChange={(e) => setCourseId(e.target.value)}
-                  className="border border-rule bg-paper px-2 py-1 text-sm"
-                >
-                  {courses.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
+      <main className="mx-auto max-w-4xl px-5 py-8 pb-16">
+        <div className="card p-5">
+          <textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void submit();
+            }}
+            rows={2}
+            placeholder="What is a deadlock?"
+            className="field w-full resize-y text-lg"
+          />
+
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button onClick={() => void submit()} disabled={loading || !question.trim()} className="btn">
+              {loading ? "Thinking…" : "Ask"}
+            </button>
+            <label className="flex items-center gap-2 text-sm text-muted">
+              Course
+              <select
+                value={courseId}
+                onChange={(e) => setCourseId(e.target.value)}
+                className="field py-1.5 text-sm"
+              >
+                <option value="">All courses</option>
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </label>
+            {weeks.length > 0 && (
+              <label className="flex items-center gap-2 text-sm text-muted">
+                Week
+                <select value={week} onChange={(e) => setWeek(e.target.value)} className="field py-1.5 text-sm">
+                  <option value="">Any</option>
+                  {weeks.map((w) => (
+                    <option key={w} value={w}>{w}</option>
                   ))}
                 </select>
               </label>
             )}
-
-            <label className="flex items-center gap-2">
-              <span className="eyebrow">Week</span>
-              <select
-                value={week}
-                onChange={(e) => setWeek(e.target.value)}
-                className="border border-rule bg-paper px-2 py-1 text-sm"
-              >
-                <option value="">All</option>
-                {weeks.map((w) => (
-                  <option key={w} value={w}>
-                    Week {w}
-                  </option>
+            <label className="flex items-center gap-2 text-sm text-muted">
+              Style
+              <select value={mode} onChange={(e) => setMode(e.target.value)} className="field py-1.5 text-sm">
+                {MODES.map((m) => (
+                  <option key={m.id} value={m.id}>{m.label}</option>
                 ))}
               </select>
             </label>
-
-            <div className="flex items-center gap-2">
-              <span className="eyebrow">Mode</span>
-              <div className="flex flex-wrap gap-1">
-                {MODES.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => setMode(m.id)}
-                    className={[
-                      "border px-2 py-1 text-xs transition-colors",
-                      mode === m.id
-                        ? "border-ink bg-ink text-paper"
-                        : "border-rule text-muted hover:border-ink hover:text-ink",
-                    ].join(" ")}
-                  >
-                    {m.label}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
-
-          <div className="flex flex-col gap-3 p-4 sm:flex-row">
-            <textarea
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
-              }}
-              rows={2}
-              placeholder="Ask about anything in your lectures…"
-              className="min-h-[3.5rem] flex-1 resize-y border border-rule bg-paper px-3 py-2 text-base"
-            />
-            <button
-              onClick={() => submit()}
-              disabled={loading || !question.trim()}
-              className="h-fit shrink-0 bg-accent px-5 py-3 text-sm font-medium text-white transition-opacity disabled:opacity-40"
-            >
-              {loading ? "Thinking…" : "Ask"}
-            </button>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 border-t border-rule px-4 py-3">
-            <span className="eyebrow">Try</span>
-            {SAMPLES.map((s) => (
-              <button
-                key={s}
-                onClick={() => submit(s)}
-                className="border border-rule px-2 py-1 text-xs text-muted hover:border-ink hover:text-ink"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </section>
+        </div>
 
         {error && (
-          <p className="mt-6 border border-marker/40 bg-marker/5 px-4 py-3 text-sm">
+          <p className="card mt-6 border-rose/30 bg-rose/10 px-4 py-3 text-sm">
             {error}
-            <span className="mt-1 block text-muted">
-              Check the API is running on port 8000.
-            </span>
+            <span className="mt-1 block text-muted">Check the backend is running on port 8000.</span>
           </p>
-        )}
-
-        {/* -------------------------------------------------------------- */}
-        {result && (
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_26rem]">
-            <div className="space-y-8">
-              <section>
-                {result.refused && (
-                  <p className="eyebrow mb-3 inline-block border border-rule px-2 py-1 text-ink">
-                    Not in your material
-                  </p>
-                )}
-                <AnswerBody
-                  answer={result.answer}
-                  citations={result.citations}
-                  activeN={open?.n ?? null}
-                  onPick={setOpen}
-                />
-              </section>
-
-              {result.verification && <VerificationPanel result={result} />}
-            </div>
-
-            <aside className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-              {open ? (
-                <CitationViewer citation={open} />
-              ) : (
-                result.citations.length === 0 && (
-                  <p className="border border-rule bg-card px-4 py-6 text-sm text-muted">
-                    No citations — the system found nothing in your material that
-                    answers this.
-                  </p>
-                )
-              )}
-              <RetrievalPanel result={result} />
-            </aside>
-          </div>
         )}
 
         {!result && !loading && (
-          <p className="mt-10 max-w-measure text-sm text-muted">
-            Click a numbered marker in any answer to see the exact region of the
-            slide it came from.
-          </p>
+          <div className="mt-6">
+            <p className="text-sm text-muted">Try one of these</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {["What is a deadlock?", "How does round robin scheduling work?",
+                "Explain semaphores"].map((ex) => (
+                <button key={ex} onClick={() => setQuestion(ex)} className="btn-quiet">
+                  {ex}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
+
+        {result && (
+          <div className="mt-8 animate-rise">
+            {result.refused && (
+              <p className="card mb-4 border-amber/40 bg-amber/10 px-4 py-3">
+                That isn&apos;t covered in the material you&apos;ve uploaded.
+              </p>
+            )}
+
+            <Answer result={result} activeN={open?.n ?? null} onPick={setOpen} />
+
+            {open && (
+              <div className="mt-5">
+                <SourceView citation={open} />
+              </div>
+            )}
+
+            <GroundingNote result={result} />
+          </div>
+        )}
+      </main>
+    </>
+  );
+}
+
+function Answer({
+  result,
+  activeN,
+  onPick,
+}: {
+  result: AskResponse;
+  activeN: number | null;
+  onPick: (c: Citation) => void;
+}) {
+  const byN = new Map(result.citations.map((c) => [c.n, c]));
+  return (
+    <div className="max-w-measure space-y-4 text-lg">
+      {result.answer.split(/\n{2,}/).map((para, pi) => (
+        <p key={pi}>
+          {para.split(/(\[\d+\])/g).map((part, i) => {
+            const m = /^\[(\d+)\]$/.exec(part);
+            const cite = m ? byN.get(Number(m[1])) : undefined;
+            if (!cite) return <span key={i}>{part}</span>;
+            return (
+              <button
+                key={i}
+                onClick={() => onPick(cite)}
+                title={`Show ${cite.label}`}
+                className={`mx-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-md align-super text-xs font-semibold transition ${
+                  activeN === cite.n
+                    ? "bg-highlight text-white shadow-sm"
+                    : "bg-brand-soft text-brand hover:bg-brand hover:text-white"
+                }`}
+              >
+                {cite.n}
+              </button>
+            );
+          })}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function GroundingNote({ result }: { result: AskResponse }) {
+  const v = result.verification;
+  if (!v) return null;
+
+  const unsupported = v.sentences.filter(
+    (s) => s.verdict === "PARTIAL" || s.verdict === "UNSUPPORTED",
+  ).length;
+
+  const ok = unsupported === 0;
+
+  return (
+    <div className="mt-8 border-t border-rule pt-5">
+      <div className="flex items-center gap-2">
+        <span className={`chip ${ok ? "bg-teal/15 text-teal" : "bg-rose/15 text-rose"}`}>
+          {ok ? "Checked" : "Check this one"}
+        </span>
+        <p className="text-sm text-muted">
+          {ok
+            ? `All ${v.n_checked} sentences match your slides.`
+            : `${unsupported} sentence${unsupported === 1 ? "" : "s"} isn't fully backed by your slides.`}
+        </p>
       </div>
-    </main>
+
+      <Details summary="How this was checked">
+        <ul className="space-y-3">
+          {v.sentences.map((s, i) => (
+            <li key={i} className="text-sm">
+              <span
+                className={`chip mr-2 ${
+                  s.verdict === "SUPPORTED"
+                    ? "bg-teal/15 text-teal"
+                    : s.verdict === "UNCITED"
+                      ? "bg-raise text-muted"
+                      : "bg-rose/15 text-rose"
+                }`}
+              >
+                {s.verdict === "SUPPORTED"
+                  ? "Backed up"
+                  : s.verdict === "UNCITED"
+                    ? "Added context"
+                    : s.verdict === "UNKNOWN"
+                      ? "Not checked"
+                      : "Partly backed"}
+              </span>
+              <span className="text-muted">{s.sentence}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-sm text-muted">
+          Each sentence is checked separately against the slides it cites, by a second
+          model that never sees the answer&apos;s reasoning.
+        </p>
+      </Details>
+
+      <Details summary="Where this came from">
+        <ul className="space-y-2 text-sm">
+          {result.hits.map((h) => (
+            <li key={h.chunk_id} className="flex gap-3">
+              <span className="font-mono text-xs text-brand">
+                {h.rerank_score !== null ? h.rerank_score.toFixed(1) : h.rrf.toFixed(3)}
+              </span>
+              <span className="text-muted">{h.label}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-sm text-muted">
+          Slides are found by meaning and by keyword, the two lists merged, then
+          re-scored for how well each actually answers the question.
+        </p>
+      </Details>
+    </div>
   );
 }

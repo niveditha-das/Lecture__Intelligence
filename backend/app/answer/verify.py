@@ -24,25 +24,50 @@ CITE = re.compile(r"\[(\d+)\]")
 _judge_gate = asyncio.Semaphore(2)
 
 
-async def _check(sentence: str, passages: list[str]) -> dict:
-    body = "PASSAGES\n" + "\n---\n".join(passages) + f"\n\nCLAIM\n{sentence}"
-    last = "no attempt"
+async def _check_all(items: list[tuple[str, list[str]]]) -> list[dict]:
+    """Check every sentence in ONE judge call.
+
+    Previously this made one call per sentence. With the central 4.5s pacer
+    that put a six-sentence answer at ~30s, which is unusable interactively —
+    the throttle that fixed batch evaluation broke the thing people actually
+    wait on. One call costs the same 4.5s regardless of sentence count.
+    """
+    if not items:
+        return []
+
+    body = "\n\n".join(
+        f"CLAIM {i}\n{sent}\nPASSAGES\n" + "\n---\n".join(passages)
+        for i, (sent, passages) in enumerate(items)
+    )
+    system = (
+        "You check whether each numbered claim is supported by its own passages.\n"
+        "SUPPORTED only if the passages state or directly entail the claim.\n"
+        "PARTIAL if they support part of it but the claim adds specifics they do not.\n"
+        "UNSUPPORTED if the passages do not establish it.\n"
+        'Return JSON: {"0": {"verdict": "SUPPORTED", "why": "<12 words"}, "1": {...}} '
+        "with one key per claim index. Include every index."
+    )
+
     async with _judge_gate:
         for attempt in range(3):
             try:
                 res = await complete_json(
-                    prompts.VERIFIER_SYSTEM, body,
-                    model=settings().judge_model, max_tokens=400, temperature=0.0,
+                    system, body,
+                    model=settings().judge_model,
+                    max_tokens=120 * len(items) + 200,
+                    temperature=0.0,
                 )
-                if isinstance(res, dict) and "verdict" in res:
-                    return res
-                last = "bad judge output"
+                if isinstance(res, dict):
+                    return [
+                        res.get(str(i)) or {"verdict": "UNKNOWN", "why": "missing from judge output"}
+                        for i in range(len(items))
+                    ]
             except Exception as exc:
                 last = f"judge error: {type(exc).__name__}"
                 if "RateLimit" not in type(exc).__name__:
-                    break
-            await asyncio.sleep(2 ** attempt * 3)   # 3s, 6s, 12s
-    return {"verdict": "UNKNOWN", "why": last}
+                    return [{"verdict": "UNKNOWN", "why": last} for _ in items]
+                await asyncio.sleep(2 ** attempt * 3)
+    return [{"verdict": "UNKNOWN", "why": "judge unavailable"} for _ in items]
 
 
 async def verify_answer(answer: str, hits: list[Hit]) -> dict:
@@ -57,9 +82,9 @@ async def verify_answer(answer: str, hits: list[Hit]) -> dict:
             targets.append((sent, None))
             continue
         targets.append((sent, ns))
-        jobs.append(_check(CITE.sub("", sent).strip(), [hits[n - 1].text for n in ns]))
+        jobs.append((CITE.sub("", sent).strip(), [hits[n - 1].text for n in ns]))
 
-    verdicts = await asyncio.gather(*jobs) if jobs else []
+    verdicts = await _check_all(jobs) if jobs else []
     out, vi = [], 0
     supported = checked = 0
 

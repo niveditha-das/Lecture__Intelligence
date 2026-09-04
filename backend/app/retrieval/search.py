@@ -50,10 +50,12 @@ fused AS (
 )
 SELECT c.id, c.text, c.locator, c.week, c.source_id,
        s.title AS source_title, s.kind AS source_kind, s.storage_uri,
+       co.name AS course_name,
        f.rrf, f.in_vec, f.in_kw
 FROM fused f
 JOIN chunks  c ON c.id = f.id
 JOIN sources s ON s.id = c.source_id
+JOIN courses co ON co.id = c.course_id
 ORDER BY f.rrf DESC
 LIMIT $7;
 """
@@ -72,6 +74,9 @@ class Hit:
     rrf: float
     rerank_score: float | None = None
     arms: list[str] = field(default_factory=list)
+    # Defaulted, and therefore last: dataclasses reject a non-default field
+    # following a defaulted one. Only populated when searching across courses.
+    course_name: str = ""
 
 
 async def search(
@@ -102,6 +107,7 @@ async def search(
             source_id=str(r["source_id"]),
             source_title=r["source_title"],
             source_kind=r["source_kind"],
+            course_name=r["course_name"],
             storage_uri=r["storage_uri"],
             week=r["week"],
             rrf=float(r["rrf"]),

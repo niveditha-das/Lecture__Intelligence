@@ -23,6 +23,7 @@ class Citation:
     source_id: str
     source_title: str
     source_kind: str
+    course_name: str
     label: str
     locator: dict[str, Any]
 
@@ -52,6 +53,8 @@ async def answer_question(
     verify: bool = True,
 ) -> dict[str, Any]:
     s = settings()
+    # The UI sends "" for "all courses"; asyncpg rejects it as a UUID.
+    course_id = course_id or None
     hits = await search(question, course_id=course_id, week=week, top_k=top_k or s.top_k)
 
     if not hits:
@@ -75,6 +78,7 @@ async def answer_question(
             source_id=hits[n - 1].source_id,
             source_title=hits[n - 1].source_title,
             source_kind=hits[n - 1].source_kind,
+            course_name=getattr(hits[n - 1], "course_name", ""),
             label=label_for(hits[n - 1]),
             locator=hits[n - 1].locator,
         )

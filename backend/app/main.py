@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .db import acquire, close_pool, init_pool
 from .retrieval import embeddings, rerank
-from .routers import ask, evaluation, sources, study
+from .routers import ask, evaluation, slides, sources, study
 
 logging.basicConfig(level=logging.INFO)
 
@@ -38,6 +38,7 @@ app.include_router(sources.router)
 app.include_router(ask.router)
 app.include_router(evaluation.router)
 app.include_router(study.router)
+app.include_router(slides.router)
 
 
 @app.get("/health")

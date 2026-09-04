@@ -335,3 +335,18 @@ model calls. Interactive `/ask` is unaffected at ~4s — it makes one. The
 unsupported-claim rate also improved (0.056 → 0.033) because judge calls that
 previously died on 429s now complete: an infrastructure failure had been
 degrading a quality metric.
+
+### A throttle that fixed batch work broke interactive work
+
+Centralising rate limiting in `llm.py` (one call per ~4.5s) made evaluation
+reproducible, but verification made one judge call per sentence — so a
+six-sentence answer became roughly 32 seconds. The fix that made the batch path
+correct made the path users actually wait on unusable.
+
+Verification now checks every sentence in a single call: the claims are
+numbered, the judge returns one verdict per index. Same 4.5s of pacing
+regardless of sentence count. Interactive `/ask` went 32s → 6.4s with no change
+in verdict quality.
+
+The lesson isn't about rate limits. It's that a shared resource control has to
+be judged against every caller, not the one that motivated it.

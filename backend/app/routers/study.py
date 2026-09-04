@@ -141,3 +141,94 @@ async def topic_similarity(course_id: str):
     ]
     pairs.sort(key=lambda p: -p["sim"])
     return {"n_topics": len(names), "top_pairs": pairs[:25]}
+
+
+# --- written questions: short and long answer ---------------------------
+
+
+class WrittenGenIn(BaseModel):
+    course_id: str
+    format: str = "short"          # short | long
+    per_topic: int = 2
+    max_topics: int | None = 6
+
+
+@router.post("/questions/generate")
+async def questions_generate(body: WrittenGenIn):
+    """Generate written questions for topics that don't have enough yet."""
+    from ..study.written import generate_written
+
+    if body.format not in ("short", "long"):
+        return {"error": "format must be 'short' or 'long'"}
+
+    async with acquire() as conn:
+        rows = await conn.fetch(
+            """SELECT t.id FROM topics t
+               WHERE t.course_id = $1
+                 AND (SELECT count(*) FROM quiz_questions q
+                      WHERE q.topic_id = t.id AND q.format = $2) < $3
+                 AND EXISTS (SELECT 1 FROM chunk_topics ct WHERE ct.topic_id = t.id)
+               ORDER BY t.week NULLS LAST, t.name
+               LIMIT COALESCE($4::int, 100)""",
+            body.course_id, body.format, body.per_topic, body.max_topics,
+        )
+
+    results = []
+    for r in rows:
+        results.append(await generate_written(str(r["id"]), body.format, body.per_topic))
+
+    return {
+        "format": body.format,
+        "topics_processed": len(results),
+        "questions_created": sum(x.get("created", 0) for x in results),
+        "results": results,
+    }
+
+
+@router.get("/questions/next")
+async def questions_next(course_id: str, format: str = "short", n: int = 3,
+                         user_id: str = DEMO_USER):
+    from ..study.written import next_written
+
+    if format not in ("short", "long"):
+        return []
+    return await next_written(user_id, course_id, format, n)
+
+
+class SelfAssessIn(BaseModel):
+    question_id: str
+    correct: bool
+    user_id: str = DEMO_USER
+
+
+@router.post("/questions/assess")
+async def questions_assess(body: SelfAssessIn):
+    return await M.record_self_assessment(body.user_id, body.question_id, body.correct)
+
+
+@router.get("/counts")
+async def counts(course_id: str):
+    """How many questions of each format exist — drives the generate buttons."""
+    async with acquire() as conn:
+        rows = await conn.fetch(
+            """SELECT q.format, count(*) AS n
+               FROM quiz_questions q JOIN topics t ON t.id = q.topic_id
+               WHERE t.course_id = $1 GROUP BY q.format""",
+            course_id,
+        )
+        topics = await conn.fetchval(
+            "SELECT count(*) FROM topics WHERE course_id = $1", course_id
+        )
+    out = {"mcq": 0, "short": 0, "long": 0, "topics": topics}
+    for r in rows:
+        out[r["format"]] = r["n"]
+    return out
+
+
+@router.get("/exam")
+async def exam(course_id: str, n: int = 5, format: str = "long",
+               topic_id: str | None = None, user_id: str = DEMO_USER):
+    """A paper: several questions, no model answers until you submit."""
+    from ..study.exam import build_paper
+
+    return await build_paper(user_id, course_id, n, format, topic_id)

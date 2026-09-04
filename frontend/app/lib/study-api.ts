@@ -125,3 +125,58 @@ export async function buildPlan(
 export function thetaFraction(theta: number): number {
   return Math.max(0, Math.min(1, (theta + 1.5) / 3));
 }
+// --- written questions (append to app/lib/study-api.ts) --------------------
+
+export type WrittenQuestion = {
+  question_id: string;
+  topic_id: string;
+  topic: string;
+  stem: string;
+  model_answer: string;
+  marking_points: string[];
+  difficulty: number;
+  grounding_chunk_ids: number[];
+};
+
+export type Counts = { mcq: number; short: number; long: number; topics: number };
+
+export const getCounts = (courseId: string) =>
+  get<Counts>(`/study/counts?course_id=${courseId}`);
+
+export const getWritten = (courseId: string, format: "short" | "long", n = 3) =>
+  get<WrittenQuestion[]>(
+    `/study/questions/next?course_id=${courseId}&format=${format}&n=${n}`,
+  );
+
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${API}${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+  return res.json() as Promise<T>;
+}
+
+export const generateMcq = (courseId: string, perTopic = 3, maxTopics = 6) =>
+  post<{ questions_created: number; topics_processed: number }>(
+    "/study/quiz/generate",
+    { course_id: courseId, per_topic: perTopic, max_topics: maxTopics },
+  );
+
+export const generateWritten = (
+  courseId: string,
+  format: "short" | "long",
+  perTopic = 2,
+  maxTopics = 5,
+) =>
+  post<{ questions_created: number; topics_processed: number }>(
+    "/study/questions/generate",
+    { course_id: courseId, format, per_topic: perTopic, max_topics: maxTopics },
+  );
+
+export const selfAssess = (questionId: string, correct: boolean) =>
+  post<AnswerResult>("/study/questions/assess", {
+    question_id: questionId,
+    correct,
+  });

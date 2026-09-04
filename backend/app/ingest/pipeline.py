@@ -60,6 +60,17 @@ async def ingest_source(source_id: str) -> int:
                 source_id,
                 {"n_blocks": len(blocks), "n_chunks": len(chunks)},
             )
+
+        # A recording is worth far more tied to the deck it was made against:
+        # transcript chunks gain slide numbers, slide chunks gain timestamps.
+        # Alignment failing must never fail the ingest.
+        if row["kind"] == "audio":
+            try:
+                from .align_service import align_audio_source
+
+                log.info("alignment: %s", await align_audio_source(source_id))
+            except Exception:
+                log.exception("alignment failed for %s", source_id)
         log.info("ingested %s: %d blocks -> %d chunks", source_id, len(blocks), len(chunks))
         return len(chunks)
 

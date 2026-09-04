@@ -5,32 +5,65 @@
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
+    color-scheme: dark;
   }
 
+  /* Slate-black with a cool wash from the top left and a faint cyan one on the
+     right. Fixed, so it doesn't drift while scrolling. */
   body {
-    @apply bg-paper text-ink font-sans;
+    @apply bg-void text-ink font-sans;
+    background-image:
+      radial-gradient(64rem 42rem at 8% -14%, rgba(2, 132, 199, .20), transparent 62%),
+      radial-gradient(42rem 30rem at 97% 2%, rgba(34, 211, 238, .10), transparent 55%),
+      linear-gradient(180deg, #0b1220 0%, #080c14 55%);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 
-  /* Numbers are the point of this project, so they get their own voice:
-     tabular mono everywhere a score, rank or rate appears. */
-  .num {
-    @apply font-mono tabular-nums;
+  h1, h2 {
+    @apply text-heading;
   }
 
-  /* Small caps eyebrow used for section labels. */
-  .eyebrow {
-    @apply font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted;
-  }
+  ::selection { background: rgba(56, 189, 248, .28); }
 
   :focus-visible {
-    outline: 2px solid theme("colors.accent");
+    outline: 2px solid theme("colors.brand.DEFAULT");
     outline-offset: 2px;
+  }
+
+  input, select, textarea { color-scheme: dark; }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-rule bg-card shadow-card;
+  }
+
+  /* Dark label: white on this blue is 2.6:1 and fails AA. */
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 font-semibold
+           text-[#06131f] shadow-glow transition hover:bg-brand-deep hover:text-white
+           disabled:cursor-not-allowed disabled:bg-brand/25 disabled:text-ink/50
+           disabled:shadow-none;
+  }
+  .btn-soft {
+    @apply inline-flex items-center gap-2 rounded-lg bg-brand-soft px-3.5 py-2 text-sm
+           font-medium text-link transition hover:bg-brand hover:text-[#06131f]
+           disabled:opacity-40;
+  }
+  .btn-quiet {
+    @apply inline-flex items-center gap-2 rounded-lg border border-rule px-3 py-1.5
+           text-sm text-muted transition hover:border-brand hover:text-ink;
+  }
+  .field {
+    @apply rounded-lg border border-rule bg-raise px-3 py-2 text-base text-ink
+           placeholder:text-faint transition focus:border-brand;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
