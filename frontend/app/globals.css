@@ -5,17 +5,19 @@
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
-    color-scheme: dark;
+    color-scheme: light;
+    /* Everything is sized in rem, so the whole interface scales from here —
+       type, padding, gaps and rounding all move together. 112.5% = 18px base. */
+    font-size: 112.5%;
   }
 
-  /* Slate-black with a cool wash from the top left and a faint cyan one on the
-     right. Fixed, so it doesn't drift while scrolling. */
+  /* White, with two very faint cool washes so it isn't a flat sheet. */
   body {
     @apply bg-void text-ink font-sans;
     background-image:
-      radial-gradient(64rem 42rem at 8% -14%, rgba(2, 132, 199, .20), transparent 62%),
-      radial-gradient(42rem 30rem at 97% 2%, rgba(34, 211, 238, .10), transparent 55%),
-      linear-gradient(180deg, #0b1220 0%, #080c14 55%);
+      radial-gradient(62rem 40rem at 8% -12%, rgba(2, 132, 199, .07), transparent 60%),
+      radial-gradient(44rem 30rem at 97% 2%, rgba(34, 211, 238, .06), transparent 55%),
+      linear-gradient(180deg, #ffffff 0%, #fbfdff 60%, #f8fbfe 100%);
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -24,14 +26,14 @@
     @apply text-heading;
   }
 
-  ::selection { background: rgba(56, 189, 248, .28); }
+  ::selection { background: rgba(2, 132, 199, .16); }
 
   :focus-visible {
     outline: 2px solid theme("colors.brand.DEFAULT");
     outline-offset: 2px;
   }
 
-  input, select, textarea { color-scheme: dark; }
+  input, select, textarea { color-scheme: light; }
 }
 
 @layer components {
@@ -39,24 +41,23 @@
     @apply rounded-xl border border-rule bg-card shadow-card;
   }
 
-  /* Dark label: white on this blue is 2.6:1 and fails AA. */
   .btn {
-    @apply inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 font-semibold
-           text-[#06131f] shadow-glow transition hover:bg-brand-deep hover:text-white
-           disabled:cursor-not-allowed disabled:bg-brand/25 disabled:text-ink/50
+    @apply inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 font-medium
+           text-white shadow-glow transition hover:bg-brand-deep
+           disabled:cursor-not-allowed disabled:bg-brand/25 disabled:text-white
            disabled:shadow-none;
   }
   .btn-soft {
     @apply inline-flex items-center gap-2 rounded-lg bg-brand-soft px-3.5 py-2 text-sm
-           font-medium text-link transition hover:bg-brand hover:text-[#06131f]
+           font-medium text-brand-deep transition hover:bg-brand hover:text-white
            disabled:opacity-40;
   }
   .btn-quiet {
-    @apply inline-flex items-center gap-2 rounded-lg border border-rule px-3 py-1.5
-           text-sm text-muted transition hover:border-brand hover:text-ink;
+    @apply inline-flex items-center gap-2 rounded-lg border border-rule bg-card px-3 py-1.5
+           text-sm text-muted transition hover:border-brand hover:text-brand-deep;
   }
   .field {
-    @apply rounded-lg border border-rule bg-raise px-3 py-2 text-base text-ink
+    @apply rounded-lg border border-rule bg-card px-3 py-2 text-base text-ink
            placeholder:text-faint transition focus:border-brand;
   }
   .chip {

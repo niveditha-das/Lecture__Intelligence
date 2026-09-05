@@ -9,14 +9,14 @@ import { useState } from "react";
  * state and survives topics being regenerated.
  */
 const TOPIC_COLORS = [
-  { bg: "bg-violet-500/15", text: "text-violet-300", dot: "bg-violet-400" },
-  { bg: "bg-amber-500/15", text: "text-amber-300", dot: "bg-amber-400" },
-  { bg: "bg-rose-500/15", text: "text-rose-300", dot: "bg-rose-400" },
-  { bg: "bg-emerald-500/15", text: "text-emerald-300", dot: "bg-emerald-400" },
-  { bg: "bg-fuchsia-500/15", text: "text-fuchsia-300", dot: "bg-fuchsia-400" },
-  { bg: "bg-orange-500/15", text: "text-orange-300", dot: "bg-orange-400" },
-  { bg: "bg-indigo-500/15", text: "text-indigo-300", dot: "bg-indigo-400" },
-  { bg: "bg-pink-500/15", text: "text-pink-300", dot: "bg-pink-400" },
+  { bg: "bg-violet-100", text: "text-violet-800", dot: "bg-violet-500" },
+  { bg: "bg-sky-100", text: "text-sky-800", dot: "bg-sky-500" },
+  { bg: "bg-emerald-100", text: "text-emerald-800", dot: "bg-emerald-600" },
+  { bg: "bg-amber-100", text: "text-amber-800", dot: "bg-amber-500" },
+  { bg: "bg-rose-100", text: "text-rose-800", dot: "bg-rose-500" },
+  { bg: "bg-indigo-100", text: "text-indigo-800", dot: "bg-indigo-500" },
+  { bg: "bg-fuchsia-100", text: "text-fuchsia-800", dot: "bg-fuchsia-500" },
+  { bg: "bg-lime-100", text: "text-lime-800", dot: "bg-lime-600" },
 ];
 
 export function topicColor(name: string) {
@@ -43,7 +43,7 @@ export function Header({ active }: { active: "ask" | "study" | "exam" | "library
       href={href}
       className={`rounded-lg px-3 py-1.5 text-sm transition ${
         active === id
-          ? "bg-brand-soft font-medium text-link"
+          ? "bg-brand-soft font-medium text-brand-deep"
           : "text-muted hover:text-ink"
       }`}
     >
@@ -52,10 +52,10 @@ export function Header({ active }: { active: "ask" | "study" | "exam" | "library
   );
 
   return (
-    <header className="border-b border-rule bg-card/80 backdrop-blur">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3">
-        <Link href="/" className="font-display text-lg font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-heading to-sky-300 bg-clip-text text-transparent">
+    <header className="border-b border-rule bg-card">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
+        <Link href="/" className="font-display text-2xl font-bold tracking-tight">
+          <span className="bg-gradient-to-r from-heading to-sky-600 bg-clip-text text-transparent">
             Lecture Assistant
           </span>
         </Link>
@@ -72,9 +72,9 @@ export function Header({ active }: { active: "ask" | "study" | "exam" | "library
 
 export function PageIntro({ title, sub }: { title: string; sub: string }) {
   return (
-    <div className="border-b border-rule bg-hero py-4">
-      <div className="mx-auto max-w-4xl px-5">
-        <h1 className="font-display text-xl font-bold tracking-tight">{title}</h1>
+    <div className="border-b border-rule bg-hero py-5">
+      <div className="mx-auto max-w-5xl px-5">
+        <h1 className="font-display text-2xl font-bold tracking-tight">{title}</h1>
         <p className="mt-1 max-w-measure text-sm text-muted">{sub}</p>
       </div>
     </div>
@@ -91,7 +91,7 @@ export function Details({ summary, children }: { summary: string; children: Reac
     <div className="mt-4">
       <button
         onClick={() => setOpen(!open)}
-        className="text-sm font-medium text-link underline-offset-2 hover:underline"
+        className="text-sm font-medium text-brand-deep underline-offset-2 hover:underline"
       >
         {open ? "Hide details" : summary}
       </button>

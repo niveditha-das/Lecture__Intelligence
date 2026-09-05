@@ -118,7 +118,7 @@ export default function ExamPage() {
         sub="A short paper from your own lectures. Nothing is revealed until you submit."
       />
 
-      <main className="mx-auto max-w-4xl px-5 py-8 pb-16">
+      <main className="mx-auto max-w-5xl px-5 py-8 pb-16">
         {/* ---- setup ---- */}
         {!paper && (
           <section className="card p-5">

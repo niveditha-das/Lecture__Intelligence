@@ -165,7 +165,7 @@ export default function StudyPage() {
         sub="Questions written from your own lectures. Answer a few and the plan below reorders itself around what you're weakest on."
       />
 
-      <main className="mx-auto max-w-4xl px-5 py-8 pb-16">
+      <main className="mx-auto max-w-5xl px-5 py-8 pb-16">
         {/* ---- make questions ---- */}
         <section className="card p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">

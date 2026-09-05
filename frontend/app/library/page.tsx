@@ -36,6 +36,9 @@ export default function LibraryPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [newCourse, setNewCourse] = useState("");
+  // Alignment matches a recording to a deck by course AND week, so a recording
+  // needs one — there's nothing in its filename to infer it from.
+  const [weekOverride, setWeekOverride] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
 
   // --- recording state ---
@@ -85,7 +88,10 @@ export default function LibraryPage() {
     for (const file of Array.from(files)) {
       setBusy(`Uploading ${file.name}…`);
       const stem = file.name.replace(/\.[^.]+$/, "");
-      const week = stem.match(/\d+/)?.[0];
+      // First 1-2 digit run, not the first digits of any kind: a recording is
+      // named "Recording 2026-09-04 …" and the old regex read week 2026.
+      const auto = stem.match(/(?:^|[^0-9])([0-9]{1,2})(?:[^0-9]|$)/)?.[1];
+      const week = weekOverride || (auto && +auto >= 1 && +auto <= 52 ? auto : undefined);
       const form = new FormData();
       form.append("course_id", courseId);
       form.append("file", file);
@@ -169,7 +175,7 @@ export default function LibraryPage() {
         sub="Add slides, notes or a recording. Everything you upload becomes searchable, with citations back to the exact page."
       />
 
-      <main className="mx-auto max-w-4xl px-5 py-8 pb-16">
+      <main className="mx-auto max-w-5xl px-5 py-8 pb-16">
         {/* ---- course ---- */}
         <div className="flex flex-wrap items-center gap-3">
           <CoursePicker courses={courses} value={courseId} onChange={setCourseId} />
@@ -203,7 +209,22 @@ export default function LibraryPage() {
             lands in week 4.
           </p>
 
-          <div className="mt-5 flex flex-wrap justify-center gap-3">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-muted">
+            Week
+            <select
+              value={weekOverride}
+              onChange={(e) => setWeekOverride(e.target.value)}
+              className="field py-1.5 text-sm"
+            >
+              <option value="">From filename</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => (
+                <option key={w} value={w}>{w}</option>
+              ))}
+            </select>
+            <span className="text-faint">— set this before recording</span>
+          </div>
+
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
             <button onClick={() => fileInput.current?.click()} className="btn" disabled={!courseId}>
               Choose files
             </button>

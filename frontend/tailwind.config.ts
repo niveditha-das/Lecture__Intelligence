@@ -1,39 +1,39 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Cyan on slate.
+ * Cyan on white.
  *
- *   slate   the page and every surface — cards, fields, controls
+ * Note on the heading colour: the dark theme used #22d3ee, which is 1.7:1 on
+ * white — invisible. The hue is kept and the lightness dropped to #0e7490,
+ * which reads as the same cyan and clears 5.5:1. Bright accent colours almost
+ * never survive a theme inversion unchanged.
+ *
+ *   white   the page
+ *   slate   surfaces and borders
  *   cyan    headings and the wordmark
- *   blue    interactive chrome: buttons, links, the active tab
+ *   blue    interactive chrome
  *
- * Cooler and more technical than the green version, which suits a corpus that
- * is mostly operating systems. Cyan is bright enough to carry headings on a
- * dark slate without needing a second accent to prop it up.
- *
- * Unchanged from every other theme: rose → amber → emerald is the mastery
- * scale, and orange marks the cited region on a slide. Token names are the
- * same, so no page needs editing.
+ * Token names are unchanged, so no page needs editing.
  */
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ink: "#e2e8f2",
-        heading: "#22d3ee",      // cyan: headings and wordmark
-        link: "#7dd3fc",
-        muted: "#94a3b8",
-        faint: "#64748b",
-        void: "#080c14",         // slate-black page
-        card: "#111826",         // slate panels
-        raise: "#1a2233",
-        rule: "#26314a",
-        brand: { DEFAULT: "#38bdf8", deep: "#0284c7", soft: "#12283f" },
-        teal: "#34d399",         // "Solid" / "Correct" — status, not styling
-        amber: "#fbbf24",
-        rose: "#fb7185",
-        highlight: "#fb923c",
+        ink: "#0f172a",
+        heading: "#0e7490",      // cyan, darkened for a light background
+        link: "#0369a1",
+        muted: "#4a5768",
+        faint: "#8f9bad",
+        void: "#ffffff",         // white page
+        card: "#ffffff",
+        raise: "#f1f5f9",        // fields, model answers
+        rule: "#e2e8f0",
+        brand: { DEFAULT: "#0284c7", deep: "#0369a1", soft: "#e0f2fe" },
+        teal: "#059669",         // "Solid" / "Correct"
+        amber: "#b45309",
+        rose: "#be123c",
+        highlight: "#ea580c",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
@@ -46,11 +46,11 @@ const config: Config = {
       },
       maxWidth: { measure: "42rem" },
       boxShadow: {
-        card: "0 1px 0 rgba(255,255,255,.05) inset, 0 14px 36px -22px rgba(0,0,0,.95)",
-        glow: "0 0 0 1px rgba(56,189,248,.26), 0 10px 26px -12px rgba(2,132,199,.5)",
+        card: "0 1px 2px rgba(15,23,42,.05), 0 8px 24px -16px rgba(15,23,42,.18)",
+        glow: "0 1px 2px rgba(2,132,199,.18), 0 8px 20px -10px rgba(2,132,199,.40)",
       },
       backgroundImage: {
-        hero: "linear-gradient(118deg,#0d1626 0%,#122438 55%,#0f2a38 100%)",
+        hero: "linear-gradient(118deg,#ecfeff 0%,#e0f2fe 55%,#eef7ff 100%)",
       },
       keyframes: {
         rise: { "0%": { opacity: "0", transform: "translateY(6px)" }, "100%": { opacity: "1", transform: "none" } },

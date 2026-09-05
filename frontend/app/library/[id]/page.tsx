@@ -74,7 +74,7 @@ export default function SourcePage() {
         }
       />
 
-      <main className="mx-auto max-w-4xl px-5 py-8 pb-16">
+      <main className="mx-auto max-w-5xl px-5 py-8 pb-16">
         <a href="/library" className="text-sm text-muted hover:text-ink">
           ← Back to library
         </a>
