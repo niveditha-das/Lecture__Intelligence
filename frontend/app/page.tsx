@@ -261,7 +261,7 @@ export default function AskPage() {
         </main>
 
         {/* ---- right: the cited slide ---- */}
-        <div className="hidden w-[22rem] shrink-0 xl:block">
+        <div className="hidden w-[26rem] shrink-0 xl:block">
           <div className="sticky top-6">
             {open ? (
               <SourceView citation={open} />

@@ -1,36 +1,38 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Cyan on white.
+ * Dark blue on light sky.
  *
- * Note on the heading colour: the dark theme used #22d3ee, which is 1.7:1 on
- * white — invisible. The hue is kept and the lightness dropped to #0e7490,
- * which reads as the same cyan and clears 5.5:1. Bright accent colours almost
- * never survive a theme inversion unchanged.
+ * The page is tinted and cards are left white, so a card reads as raised
+ * rather than as a slightly different shade of the same thing. That inversion
+ * is what stops a tinted background looking muddy.
  *
- *   white   the page
- *   slate   surfaces and borders
- *   cyan    headings and the wordmark
- *   blue    interactive chrome
+ *   cyan-slate  the page
+ *   cool grey   surfaces and borders
+ *   navy        headings and the wordmark
+ *   blue        interactive chrome
  *
- * Token names are unchanged, so no page needs editing.
+ * Headings sit at #1e3a8a — deep enough to anchor a white page at 10.5:1,
+ * where the earlier cyan managed only 5.4 and read washed out.
+ *
+ * Token names unchanged, so no page needs editing.
  */
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ink: "#0f172a",
-        heading: "#0e7490",      // cyan, darkened for a light background
-        link: "#0369a1",
-        muted: "#4a5768",
-        faint: "#8f9bad",
-        void: "#ffffff",         // white page
-        card: "#ffffff",
-        raise: "#f1f5f9",        // fields, model answers
-        rule: "#e2e8f0",
-        brand: { DEFAULT: "#0284c7", deep: "#0369a1", soft: "#e0f2fe" },
-        teal: "#059669",         // "Solid" / "Correct"
+        ink: "#111827",
+        heading: "#1e3a8a",      // navy
+        link: "#1d4ed8",
+        muted: "#4b5563",
+        faint: "#8b93a5",
+        void: "#e8f4fd",         // light sky — clearly blue, still light
+        card: "#ffffff",         // cards stay white, so they lift off it
+        raise: "#f0f8ff",        // between page and card
+        rule: "#c6dff2",
+        brand: { DEFAULT: "#1d4ed8", deep: "#1e3a8a", soft: "#e6edfd" },
+        teal: "#0f766e",
         amber: "#b45309",
         rose: "#be123c",
         highlight: "#ea580c",
@@ -46,11 +48,11 @@ const config: Config = {
       },
       maxWidth: { measure: "42rem" },
       boxShadow: {
-        card: "0 1px 2px rgba(15,23,42,.05), 0 8px 24px -16px rgba(15,23,42,.18)",
-        glow: "0 1px 2px rgba(2,132,199,.18), 0 8px 20px -10px rgba(2,132,199,.40)",
+        card: "0 1px 2px rgba(15,40,70,.08), 0 10px 30px -18px rgba(15,40,70,.35)",
+        glow: "0 1px 2px rgba(29,78,216,.20), 0 8px 20px -10px rgba(29,78,216,.45)",
       },
       backgroundImage: {
-        hero: "linear-gradient(118deg,#ecfeff 0%,#e0f2fe 55%,#eef7ff 100%)",
+        hero: "linear-gradient(118deg,#d7ecfb 0%,#dceffd 55%,#d3f0fa 100%)",
       },
       keyframes: {
         rise: { "0%": { opacity: "0", transform: "translateY(6px)" }, "100%": { opacity: "1", transform: "none" } },

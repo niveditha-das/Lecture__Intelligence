@@ -1,5 +1,7 @@
 # Lecture Intelligence Platform
 
+![ci](https://github.com/niveditha-das/Lecture_Intelligence/actions/workflows/ci.yml/badge.svg)
+
 Turns a course's slides, notes and lecture recordings into a searchable knowledge
 base that answers questions **only** from that material, with citations you can
 click and verify.

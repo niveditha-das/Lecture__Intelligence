@@ -6,18 +6,15 @@
   html {
     -webkit-font-smoothing: antialiased;
     color-scheme: light;
-    /* Everything is sized in rem, so the whole interface scales from here —
-       type, padding, gaps and rounding all move together. 112.5% = 18px base. */
-    font-size: 112.5%;
   }
 
   /* White, with two very faint cool washes so it isn't a flat sheet. */
   body {
     @apply bg-void text-ink font-sans;
     background-image:
-      radial-gradient(62rem 40rem at 8% -12%, rgba(2, 132, 199, .07), transparent 60%),
-      radial-gradient(44rem 30rem at 97% 2%, rgba(34, 211, 238, .06), transparent 55%),
-      linear-gradient(180deg, #ffffff 0%, #fbfdff 60%, #f8fbfe 100%);
+      radial-gradient(62rem 40rem at 8% -12%, rgba(14, 165, 233, .12), transparent 60%),
+      radial-gradient(44rem 30rem at 97% 2%, rgba(56, 189, 248, .10), transparent 55%),
+      linear-gradient(180deg, #eef7fe 0%, #e8f4fd 55%, #e2f1fc 100%);
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -26,7 +23,7 @@
     @apply text-heading;
   }
 
-  ::selection { background: rgba(2, 132, 199, .16); }
+  ::selection { background: rgba(29, 78, 216, .16); }
 
   :focus-visible {
     outline: 2px solid theme("colors.brand.DEFAULT");

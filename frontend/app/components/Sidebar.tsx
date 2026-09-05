@@ -42,7 +42,7 @@ export function Sidebar({
   const total = sources.reduce((n, s) => n + chunkCount(s), 0);
 
   return (
-    <aside className="hidden w-60 shrink-0 lg:block">
+    <aside className="hidden w-72 shrink-0 lg:block">
       <div className="sticky top-6 space-y-6">
         {/* ---- courses ---- */}
         <nav>

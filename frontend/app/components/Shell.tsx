@@ -9,12 +9,12 @@ import { useState } from "react";
  * state and survives topics being regenerated.
  */
 const TOPIC_COLORS = [
-  { bg: "bg-violet-100", text: "text-violet-800", dot: "bg-violet-500" },
-  { bg: "bg-sky-100", text: "text-sky-800", dot: "bg-sky-500" },
+  { bg: "bg-teal-100", text: "text-teal-800", dot: "bg-teal-600" },
+  { bg: "bg-fuchsia-100", text: "text-fuchsia-800", dot: "bg-fuchsia-500" },
   { bg: "bg-emerald-100", text: "text-emerald-800", dot: "bg-emerald-600" },
   { bg: "bg-amber-100", text: "text-amber-800", dot: "bg-amber-500" },
   { bg: "bg-rose-100", text: "text-rose-800", dot: "bg-rose-500" },
-  { bg: "bg-indigo-100", text: "text-indigo-800", dot: "bg-indigo-500" },
+  { bg: "bg-orange-100", text: "text-orange-800", dot: "bg-orange-500" },
   { bg: "bg-fuchsia-100", text: "text-fuchsia-800", dot: "bg-fuchsia-500" },
   { bg: "bg-lime-100", text: "text-lime-800", dot: "bg-lime-600" },
 ];
@@ -53,9 +53,9 @@ export function Header({ active }: { active: "ask" | "study" | "exam" | "library
 
   return (
     <header className="border-b border-rule bg-card">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
+      <div className="mx-auto flex max-w-[80rem] items-center justify-between px-5 py-3">
         <Link href="/" className="font-display text-2xl font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-heading to-sky-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-heading to-blue-600 bg-clip-text text-transparent">
             Lecture Assistant
           </span>
         </Link>
@@ -72,10 +72,10 @@ export function Header({ active }: { active: "ask" | "study" | "exam" | "library
 
 export function PageIntro({ title, sub }: { title: string; sub: string }) {
   return (
-    <div className="border-b border-rule bg-hero py-5">
-      <div className="mx-auto max-w-5xl px-5">
-        <h1 className="font-display text-2xl font-bold tracking-tight">{title}</h1>
-        <p className="mt-1 max-w-measure text-sm text-muted">{sub}</p>
+    <div className="border-b border-rule bg-hero py-4">
+      <div className="mx-auto max-w-[80rem] px-5 text-center">
+        <h1 className="font-display text-xl font-bold tracking-tight">{title}</h1>
+        <p className="mx-auto mt-1 max-w-measure text-sm text-muted">{sub}</p>
       </div>
     </div>
   );
