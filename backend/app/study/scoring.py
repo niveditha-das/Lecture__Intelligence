@@ -22,6 +22,7 @@ import math
 K_MIN, K_MAX = 0.15, 0.6
 BASE_HALF_LIFE_DAYS = 3.0   # a topic reviewed today should not read as forgotten
 MIN_DAYS_FOR_DECAY = 0.5    # below this, treat the material as still fresh
+THETA_MIN, THETA_MAX = -3.0, 3.0   # bounds the streak: caps half_life_days' 2**theta
 
 
 def sigmoid(x: float) -> float:
@@ -35,7 +36,8 @@ def k_factor(n_seen: int) -> float:
 
 def update_theta(theta: float, difficulty: float, correct: bool, n_seen: int) -> float:
     p = sigmoid(theta - difficulty)
-    return theta + k_factor(n_seen) * ((1.0 if correct else 0.0) - p)
+    new_theta = theta + k_factor(n_seen) * ((1.0 if correct else 0.0) - p)
+    return max(THETA_MIN, min(THETA_MAX, new_theta))
 
 
 def half_life_days(theta: float, n_correct: int) -> float:
@@ -63,5 +65,5 @@ def urgency(theta: float, n_correct: int, days_since: float | None,
         0.25 if days_since is None
         else retention(theta, n_correct, days_since + days_to_exam)
     )
-    weakness = max(0.0, 1.0 - (theta + 1.5) / 3.0)   # theta -1.5..1.5 -> 1..0
+    weakness = max(0.0, min(1.0, 1.0 - (theta + 1.5) / 3.0))   # theta -1.5..1.5 -> 1..0
     return (1.0 - predicted) * (1.0 + weakness)

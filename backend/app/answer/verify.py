@@ -62,6 +62,9 @@ async def _check_all(items: list[tuple[str, list[str]]]) -> list[dict]:
                         res.get(str(i)) or {"verdict": "UNKNOWN", "why": "missing from judge output"}
                         for i in range(len(items))
                     ]
+                # Valid JSON, wrong shape: retry with the same backoff as a
+                # rate limit rather than spending all 3 attempts back-to-back.
+                await asyncio.sleep(2 ** attempt * 3)
             except Exception as exc:
                 last = f"judge error: {type(exc).__name__}"
                 if "RateLimit" not in type(exc).__name__:

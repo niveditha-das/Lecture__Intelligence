@@ -42,8 +42,7 @@ def align(
     dp = np.full((n, m), NEG, dtype=np.float64)
     back = np.zeros((n, m), dtype=np.int32)
 
-    dp[0, 0] = sim[0, 0] + stay_bonus
-    for j in range(1, min(m, max_skip + 1)):      # allow starting mid-deck
+    for j in range(0, min(m, max_skip + 1)):      # allow starting mid-deck
         dp[0, j] = sim[0, j]
 
     for i in range(1, n):
