@@ -124,9 +124,19 @@ make eval
 - [x] Grounded answering, citation parsing, per-sentence verification
 - [x] Eval harness: recall@k, MRR, citation precision, unsupported-claim rate
 - [x] Citation viewer (page render + bbox overlay, audio seek)
-- [ ] Audio ingestion behind a job queue + slide alignment wired into ingest
-- [ ] Topic extraction, quiz generation, mastery model (Elo-style θ per topic)
-- [ ] Study-plan agent with tool access to the above
+- [x] Topic extraction with embedding-based label merging
+- [x] Question generation in three formats — MCQ, short answer, long answer —
+      each grounded in specific chunks, with model answers and marking points
+- [x] Elo-style mastery model (one logistic parameter per topic), self-assessed
+      written answers feeding the same update
+- [x] Deterministic revision planner ranking by predicted retention at the exam
+- [x] Exam mode: a paper marked only after submission
+- [x] Slide browser with per-page explanation
+- [x] Transcript-to-slide alignment (monotonic DTW) wired into ingestion
+- [ ] Alignment verified against a real recording — the code path has only ever
+      run on synthetic embeddings
+- [ ] Audio ingestion behind a job queue (currently a FastAPI background task,
+      which will not survive a deployed instance)
 
 ## Engineering notes
 
