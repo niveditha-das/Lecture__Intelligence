@@ -286,27 +286,6 @@ and "the chunker change silently stopped matching anything".
 
 ---
 
-## Status
-
-- [x] PDF / PPTX / notes ingestion with locator-preserving chunking
-- [x] Hybrid retrieval (pgvector + tsvector, RRF) with cross-encoder rerank
-- [x] Grounded answering, citation parsing, per-sentence verification
-- [x] Eval harness: recall@k, MRR, citation precision, refusal accuracy
-- [x] Citation viewer — page render with bbox overlay, audio seek
-- [x] Topic extraction with embedding-based label merging
-- [x] Question generation: MCQ, short answer, long answer
-- [x] Elo-style mastery model with self-assessed written answers
-- [x] Deterministic revision planner and exam mode
-- [x] Slide browser with per-page explanation
-- [x] Transcript-to-slide alignment wired into ingestion
-- [x] CI: unit tests, import check, retrieval quality gate
-- [ ] Alignment verified against a real recording — the code path has only run
-      on synthetic embeddings
-- [ ] Audio ingestion behind a job queue; it is currently a FastAPI background
-      task, which will not survive a deployed instance
-- [x] Topic extraction is idempotent — links are replaced rather than
-      accumulated, and topics that already have questions are never pruned
-
 ## Known limitations
 
 **The revision planner ranks a topic answered once above eleven never
