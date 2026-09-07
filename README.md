@@ -304,8 +304,8 @@ and "the chunker change silently stopped matching anything".
       on synthetic embeddings
 - [ ] Audio ingestion behind a job queue; it is currently a FastAPI background
       task, which will not survive a deployed instance
-- [ ] Topic extraction is not idempotent — re-running accumulates topics rather
-      than replacing them
+- [x] Topic extraction is idempotent — links are replaced rather than
+      accumulated, and topics that already have questions are never pruned
 
 ## Known limitations
 

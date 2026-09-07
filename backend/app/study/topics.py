@@ -175,6 +175,16 @@ async def extract_topics(course_id: str, limit: int | None = None) -> dict:
                     course_id, name, week,
                 )
 
+            # Links are replaced, not accumulated. Inserting on top of a
+            # previous run left stale rows, which inflated the chunk counts the
+            # prune below reads — so fewer topics were pruned and the list grew
+            # on every run.
+            await conn.execute(
+                """DELETE FROM chunk_topics ct USING chunks c
+                   WHERE ct.chunk_id = c.id AND c.course_id = $1""",
+                course_id,
+            )
+
             pairs = {
                 (chunk_id, ids[mapping[t]])
                 for chunk_id, _, ts in labelled for t in ts if mapping.get(t) in ids
@@ -187,9 +197,14 @@ async def extract_topics(course_id: str, limit: int | None = None) -> dict:
 
     async with acquire() as conn:
         pruned = await conn.execute(
-            """DELETE FROM topics t WHERE t.course_id = $1 AND (
-                   SELECT count(*) FROM chunk_topics ct WHERE ct.topic_id = t.id
-               ) < $2""",
+            """DELETE FROM topics t
+               WHERE t.course_id = $1
+                 AND (SELECT count(*) FROM chunk_topics ct
+                      WHERE ct.topic_id = t.id) < $2
+                 -- quiz_questions cascades on topic_id, so pruning a topic
+                 -- that has questions would destroy them and their attempts.
+                 AND NOT EXISTS (SELECT 1 FROM quiz_questions q
+                                 WHERE q.topic_id = t.id)""",
             course_id, MIN_CHUNKS_PER_TOPIC,
         )
 
