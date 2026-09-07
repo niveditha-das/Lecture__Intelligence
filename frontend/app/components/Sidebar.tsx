@@ -47,7 +47,7 @@ export function Sidebar({
         {/* ---- courses ---- */}
         <nav>
           <p className="px-2 text-xs font-semibold uppercase tracking-wide text-faint">
-            Courses
+            Asking about
           </p>
           <ul className="mt-2 space-y-0.5">
             {courses.map((c) => {

@@ -6,9 +6,12 @@
   html {
     -webkit-font-smoothing: antialiased;
     color-scheme: light;
+    /* Everything is sized in rem, so the whole interface scales from here —
+       type, padding, gaps and corner radii move together. 118.75% = 19px. */
+    font-size: 118.75%;
   }
 
-  /* White, with two very faint cool washes so it isn't a flat sheet. */
+  /* Light sky, with two soft washes so it isn't a flat sheet. */
   body {
     @apply bg-void text-ink font-sans;
     background-image:
