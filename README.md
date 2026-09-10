@@ -261,6 +261,21 @@ single call: claims are numbered, the judge returns one verdict per index.
 The lesson isn't about rate limits. A shared resource control has to be judged
 against every caller, not just the one that motivated it.
 
+### Absolute paths do not survive a move
+
+Uploads recorded the file's absolute path in the database. That worked until the
+API moved into a container: rows created while running on the host pointed at
+`/Users/.../backend/storage/...`, which does not exist inside Linux, so every
+citation failed to render with `no such file`. The chunks, embeddings and
+locators were all fine — only the pointer to the original was wrong.
+
+Storage now returns a *key* and resolves it against `STORAGE_DIR` at read time,
+which is the same shape a key in S3 or R2 would take. `resolve()` still accepts
+a legacy absolute path, so existing rows keep working.
+
+The general form: anything derived from the environment — a path, a hostname, a
+port — should be resolved at use time, not frozen into a row at write time.
+
 ### Failed checks are not hallucinations
 
 `unsupported_claim_rate` originally counted judge failures as unsupported
