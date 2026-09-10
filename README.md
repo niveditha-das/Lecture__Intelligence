@@ -136,13 +136,19 @@ worked example, Socratic.
 generation in three formats (MCQ, short answer, long answer) grounded in
 specific chunks, an Elo-style mastery model, and a revision planner.
 
+![A quiz question answered, with the skill score for that topic moving](docs/study.png)
+
 **Exam** — a short paper with model answers withheld until submission, then all
 marked at once. Question selection is deliberately *not* adaptive: practice
 targets your current ability, but an exam should sample the syllabus including
 what you have avoided.
 
+![Exam mode: a paper with model answers withheld until submission](docs/exam.png)
+
 **Library** — drag-and-drop upload, in-browser recording, and per-file
 management with transcript download.
+
+![The library: uploaded files with their type, week and chunk count](docs/library.png)
 
 ---
 
