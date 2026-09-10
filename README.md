@@ -1,6 +1,6 @@
 # Lecture Intelligence Platform
 
-[![ci](https://github.com/niveditha-das/Lecture_Intelligence/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/niveditha-das/Lecture_Intelligence/actions/workflows/ci.yml)
+[![ci](https://github.com/niveditha-das/lecture__Intelligence/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/niveditha-das/lecture__Intelligence/actions/workflows/ci.yml)
 
 Turns a course's slides, notes and recordings into a searchable knowledge base
 that answers questions **only** from that material — and shows you the exact
