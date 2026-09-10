@@ -13,7 +13,12 @@ slide region each sentence came from.
 Not a chatbot with a PDF attached. The interesting parts are the provenance
 chain, the hybrid retrieval, and the measurement.
 
-![An answer with a citation open, showing the source slide with the cited region highlighted](docs/screenshot.png)
+![An answer with numbered citations; clicking one renders the source slide with the cited region boxed](docs/citation.png)
+
+Every sentence is then checked against the slides it cites, by a second model
+that never sees the answer's reasoning:
+
+![Per-sentence grounding verdicts](docs/grounding.png)
 
 ---
 
