@@ -96,7 +96,8 @@ async def source_page(source_id: str, page_no: int, dpi: int = 144):
         raise HTTPException(404, "no such source")
     if row["kind"] != "pdf":
         raise HTTPException(400, "page rendering is only available for PDFs")
-    return Response(render_page(row["storage_uri"], page_no, dpi), media_type="image/png")
+    return Response(render_page(storage.resolve(row["storage_uri"]), page_no, dpi),
+                    media_type="image/png")
 
 
 @router.get("/sources/{source_id}/file")

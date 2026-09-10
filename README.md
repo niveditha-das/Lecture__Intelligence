@@ -13,8 +13,7 @@ slide region each sentence came from.
 Not a chatbot with a PDF attached. The interesting parts are the provenance
 chain, the hybrid retrieval, and the measurement.
 
-<!-- Replace with a screenshot of an answer with a citation open:
-     ![Citation viewer](docs/screenshot.png) -->
+![An answer with a citation open, showing the source slide with the cited region highlighted](docs/screenshot.png)
 
 ---
 

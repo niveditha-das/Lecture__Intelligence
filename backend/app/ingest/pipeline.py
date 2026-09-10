@@ -43,7 +43,9 @@ async def ingest_source(source_id: str) -> int:
 
     try:
         s = settings()
-        blocks = extract_blocks(row["kind"], row["storage_uri"])
+        from .. import storage
+
+        blocks = extract_blocks(row["kind"], storage.resolve(row["storage_uri"]))
         chunks = chunk_blocks(blocks, s.chunk_target_tokens, s.chunk_overlap_tokens)
         if not chunks:
             raise ValueError("no extractable text found")
