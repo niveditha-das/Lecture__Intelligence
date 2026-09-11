@@ -310,20 +310,3 @@ regression. It is still the difference between "the chunker change looked fine"
 and "the chunker change silently stopped matching anything".
 
 ---
-
-## Known limitations
-
-**The revision planner ranks a topic answered once above eleven never
-assessed**, because untested topics get a fixed retention floor while a tested
-topic's retention decays toward the exam. Recent evidence of weakness
-outranking absence of evidence is defensible; a *correct* answer outranking an
-untested topic is not. All untested topics also tie exactly, so their relative
-order is arbitrary — a real course would break that tie on week proximity.
-
-Both are visible because the ranking is returned with the plan rather than
-hidden inside a prompt, which is the argument for a deterministic planner over
-asking a model for a timetable.
-
-**Written answers are self-assessed**, which is noisier than a multiple-choice
-comparison. Those attempts are flagged `self_assessed` in the database so a
-later calibration pass can down-weight them.
