@@ -308,5 +308,3 @@ Three jobs on every push:
 The fixture corpus is small, so the gate catches breakage rather than subtle
 regression. It is still the difference between "the chunker change looked fine"
 and "the chunker change silently stopped matching anything".
-
----
